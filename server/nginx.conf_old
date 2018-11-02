@@ -1,0 +1,168 @@
+user www-data;
+worker_processes  1;
+pid        /var/run/nginx.pid;
+
+events {
+    worker_connections  1024;
+}
+
+rtmp {
+    server {
+        listen 1935; 
+        chunk_size 4000;
+	
+	application from {
+	    live on;
+	    record all;
+            record_path /var/www/vod;
+	    exec ffmpeg -i rtmp://localhost:1935/from/$name -codec copy -flags global_header -movflags faststart -f flv rtmp://localhost:1935/to/$name;
+	   # exec_push ffmpeg -i rtmp://localhost:1935/from/$name -vcodec copy -acodec copy -flags global_header -f flv rtmp://localhost:1935/to/$name;
+        }
+	
+	application to {
+	    live on;
+	    #record all;
+	    #record_path /var/www/vod;
+	}
+        
+	application play {
+            play /var/www/vod;
+        }
+
+	application hls {
+            allow play all;
+            live on;
+            hls on;
+            hls_path /var/www/vod;
+            hls_playlist_length 3;
+            hls_fragment 10s;
+            deny play all;
+        }
+
+
+
+    }
+}
+
+http {
+    access_log /var/log/nginx/access-streaming.log;
+    error_log /var/log/nginx/error-streaming.log;
+
+    sendfile        on;
+    keepalive_timeout  65;
+ #   sendfile	on;
+    server {
+        listen       80;
+	server_name localhost;
+
+        location / {
+            #root   html;
+	    root /var/www;
+	    index index.html index.htm;
+        }
+
+
+	  
+# This URL provides RTMP statistics in XML
+        location /stat {
+            rtmp_stat all;
+            rtmp_stat_stylesheet stat.xsl;
+        }
+ 
+        location /stat.xsl {
+            # XML stylesheet to view RTMP stats.
+            # Copy stat.xsl wherever you want
+            # and put the full directory path here
+            root /var/www/;
+        }
+	location /live/{
+	    root /var/www;
+	    mp4;
+	}
+ 
+        location /vod {
+            # Serve HLS fragments
+            types {
+                application/vnd.apple.mpegurl m3u8;
+                video/mp2t ts;
+            }
+            root /var/www;
+            expires -1;
+        }
+location /hls {
+            # Serve HLS fragments
+            # root /tmp;
+            # Disable cache
+                add_header Cache-Control no-cache;
+
+                # CORS setup
+                add_header 'Access-Control-Allow-Origin' '*' always;
+                add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
+                add_header 'Access-Control-Allow-Headers' 'Range';
+
+                # allow CORS preflight requests
+                if ($request_method = 'OPTIONS') {
+                    add_header 'Access-Control-Allow-Origin' '*';
+                    add_header 'Access-Control-Allow-Headers' 'Range';
+                    add_header 'Access-Control-Max-Age' 1728000;
+                    add_header 'Content-Type' 'text/plain charset=UTF-8';
+                    add_header 'Content-Length' 0;
+                    return 204;
+                }
+
+                types {
+                    application/vnd.apple.mpegurl m3u8;
+                    video/mp2t ts;
+                }
+
+                root /var/www/vod;
+        }
+
+	location /dash {
+          # Serve DASH fragments
+          alias /var/www/dash;
+          add_header Cache-Control no-cache;
+	  add_header Access-Control-Allow-Origin *;
+        }
+
+#################
+
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+
+        # proxy the PHP scripts to Apache listening on 127.0.0.1:80
+        #
+        #location ~ \.php$ {
+        #    proxy_pass   http://127.0.0.1;
+        #}
+
+
+        # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+        #
+        location ~ \.php$ {
+            root           /var/www;
+            #fastcgi_pass   127.0.0.1:9000;
+            fastcgi_index  index.php;
+            fastcgi_param  SCRIPT_FILENAME  /var/www$fastcgi_script_name;
+            include        fastcgi_params;
+	
+	#try_files $uri= 404;
+	#fastcgi_split_path_info ^(.+\.php)(/.+)$;
+	fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+	#fastcgi_index index.php;
+	#fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+	#include fastcgi_params;	 
+        }
+
+        # deny access to .htaccess files, if Apache's document root
+        # concurs with nginx's one
+        #
+        #location ~ /\.ht {
+        #    deny  all;
+        #}
+    }
+}
+
+     

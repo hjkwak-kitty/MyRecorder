@@ -1,0 +1,43 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion '25.0.2'
+
+    defaultConfig {
+        applicationId "com.example.hyojin.myrecorder"
+        minSdkVersion 19
+        targetSdkVersion 24
+        versionCode 1
+        versionName "1.0"
+
+        defaultConfig {
+            testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        }
+
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:appcompat-v7:24.2.1'
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:design:23.1.1'
+    compile 'com.squareup.dagger:dagger-compiler:1.2.2'
+    compile 'com.squareup.dagger:dagger:1.2.2'
+    compile 'com.mcxiaoke.volley:library:1.0.18'
+    compile 'com.writingminds:FFmpegAndroid:0.3.2'
+    compile 'com.jakewharton:butterknife:5.1.2'
+    compile 'com.github.nkzawa:socket.io-client:0.3.0'
+    compile('com.github.nkzawa:socket.io-client:0.4.1') {
+        exclude group: 'org.json', module: 'json'
+    }
+    compile project(':vitamio')
+    compile project(':uppush')
+}

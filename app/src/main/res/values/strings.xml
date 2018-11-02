@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">My Recorder</string>
+
+    <string name="btn_recording">RECORDING</string>
+    <string name="btn_streaming">STREAMING</string>
+    <string name="btn_watching">WATCHING</string>
+    <string name="btn_setting">SETTING</string>
+    <string name="btn_login">LOGIN</string>
+    <string name="btn_register">REGISTER</string>
+    <string name="btn_only">확인</string>
+    <string name="btn_link_to_register">Not a member? Sign up now.</string>
+    <string name="btn_link_to_login">Already registred! Login Me.</string>
+    <string name="btn_chk">확인</string>
+    <string name="btn_auth">인증</string>
+    <string name="btn_signOff">탈퇴하기</string>
+
+
+    <string name="launch_overlay">Launch Overlay</string>
+    <string name="device_not_supported">Device not supported</string>
+    <string name="device_not_supported_message">FFmpeg is not supported on your device</string>
+    <string name="empty_command_toast">You cannot execute empty command</string>
+
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_name">Nickname</string>
+    <string name="hint_auth">인증문자</string>
+
+    <string name="preferences">Preferences</string>
+    <string name="welcome">반갑습니다!</string>
+
+
+</resources>
